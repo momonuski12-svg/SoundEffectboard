@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة الصوت</title>
+  <style>
+    :root {
+      --bg-color: #eef1f5;
+      --card-bg: #ffffff;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --accent: #2563eb;
+      --border-soft: #e2e8f0;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+      padding: 35px 20px 60px;
+      min-height: 100vh;
+      margin: 0;
+      background: linear-gradient(180deg, #f4f6f9 0%, var(--bg-color) 100%);
+      color: var(--text-main);
+      text-align: center;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .header {
+      margin-bottom: 24px;
+    }
+
+    .header h2 {
+      margin: 0 0 8px;
+      font-size: 28px;
+      font-weight: 800;
+    }
+
+    .subtitle {
+      margin: 0;
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin: 0 auto 28px;
+      max-width: 680px;
+    }
+
+    .search-box {
+      position: relative;
+      flex: 1 1 280px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 11px 38px 11px 16px;
+      font-size: 15px;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 999px;
+      background-color: var(--card-bg);
+      color: var(--text-main);
+      outline: none;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.14);
+    }
+
+    .clear-btn {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: none;
+      width: 24px;
+      height: 24px;
+      border: none;
+      border-radius: 50%;
+      background: #e2e8f0;
+      color: #475569;
+      font-size: 14px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .badge {
+      background: var(--card-bg);
+      border: 1px solid var(--border-soft);
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 700;
+      padding: 9px 14px;
+      border-radius: 999px;
+    }
+
+    .reset-btn {
+      padding: 9px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #475569;
+      background-color: var(--card-bg);
+      border: 1px solid #cbd5e1;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+
+    .stop-btn {
+      display: none;
+      padding: 9px 16px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #ffffff;
+      background-color: #dc2626;
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+
+    .no-results {
+      display: none;
+      margin-top: 30px;
+      padding: 24px;
+      background: var(--card-bg);
+      border: 1px dashed #cbd5e1;
+      border-radius: 16px;
+      font-size: 15px;
+      color: var(--text-muted);
+    }
+
+    .grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .sound-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 155px;
+      padding: 18px 12px 14px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-soft);
+      border-radius: 20px;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+    }
+
+    .sound-item.playing {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16);
+    }
+
+    .img-btn {
+      width: 96px;
+      height: 96px;
+      border: none;
+      background: transparent;
+      padding: 0;
+      cursor: pointer;
+    }
+
+    .img-btn img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      transform: scale(1.6);
+      pointer-events: none;
+    }
+
+    .sound-name {
+      margin-top: 12px;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .play-count {
+      margin-top: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent);
+      min-height: 15px;
+    }
+
+    .download-btn {
+      margin-top: 6px;
+      padding: 5px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #475569;
+      background-color: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+
+    .red    { filter: sepia(1) saturate(6) hue-rotate(-50deg) brightness(0.9); }
+    .blue   { filter: sepia(1) saturate(5) hue-rotate(175deg) brightness(0.9); }
+    .green  { filter: sepia(1) saturate(5) hue-rotate(75deg) brightness(0.9); }
+    .orange { filter: sepia(1) saturate(6) hue-rotate(-15deg) brightness(0.95); }
+    .purple { filter: sepia(1) saturate(5) hue-rotate(245deg) brightness(0.9); }
+    .teal   { filter: sepia(1) saturate(4.5) hue-rotate(135deg) brightness(0.9); }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header">
+      <h2>لوحة الصوت</h2>
+      <p class="subtitle">الأصوات بتترتب تلقائياً حسب الأكثر استخداماً</p>
+    </div>
+
+    <div class="controls">
+      <div class="search-box">
+        <input
+          type="text"
+          id="searchInput"
+          class="search-input"
+          placeholder="ابحث عن صوت..."
+          oninput="filterSounds()"
+        >
+        <button type="button" id="clearBtn" class="clear-btn" onclick="clearSearch()" title="مسح البحث">×</button>
+      </div>
+
+      <div id="countBadge" class="badge">6 أصوات</div>
+      <button type="button" class="reset-btn" onclick="resetUsage()">إعادة الترتيب</button>
+      <button type="button" id="stopBtn" class="stop-btn" onclick="stopCurrentSound()">إيقاف الصوت</button>
+    </div>
+
+    <div id="noResults" class="no-results">مفيش صوت بالاسم ده</div>
+
+    <div class="grid" id="soundGrid">
+      <div class="sound-item" data-initial-order="0">
+        <button class="img-btn purple" onclick="playMp3(this, 'sounds/anime-wow-sound-effect.mp3')">
+          <img src="btn.png" alt="button">
+        </button>
+        <div class="sound-name">wow</div>
+        <div class="play-count"></div>
+        <button class="download-btn" onclick="downloadMp3('sounds/anime-wow-sound-effect.mp3', 'anime-wow-sound-effect.mp3')">تحميل ⬇</button>
+      </div>
+
+      <div class="sound-item" data-initial-order="1">
+        <button class="img-btn teal" onclick="playMp3(this, 'sounds/dry-fart.mp3')">
+          <img src="btn.png" alt="button">
+        </button>
+        <div class="sound-name">dry fart</div>
+        <div class="play-count"></div>
+        <button class="download-btn" onclick="downloadMp3('sounds/dry-fart.mp3', 'dry-fart.mp3')">تحميل ⬇</button>
+      </div>
+
+      <div class="sound-item" data-initial-order="2">
+        <button class="img-btn red" onclick="playMp3(this, 'sounds/raaaah.mp3')">
+          <img src="btn.png" alt="button">
+        </button>
+        <div class="sound-name">raaaah</div>
+        <div class="play-count"></div>
+        <button class="download-btn" onclick="downloadMp3('sounds/raaaah.mp3', 'raaaah.mp3')">تحميل ⬇</button>
+      </div>
+
+      <div class="sound-item" data-initial-order="3">
+        <button class="img-btn blue" onclick="playMp3(this, 'sounds/candyland-meme-sound.mp3')">
+          <img src="btn.png" alt="button">
+        </button>
+        <div class="sound-name">candyland</div>
+        <div class="play-count"></div>
+        <button class="download-btn" onclick="downloadMp3('sounds/candyland-meme-sound.mp3', 'candyland-meme-sound.mp3')">تحميل ⬇</button>
+      </div>
+
+      <div class="sound-item" data-initial-order="4">
+        <button class="img-btn green" onclick="playMp3(this, 'sounds/fahhhhhhhhhhhhhhh.mp3')">
+          <img src="btn.png" alt="button">
+        </button>
+        <div class="sound-name">fahhhhhhh</div>
+        <div class="play-count"></div>
+        <button class="download-btn" onclick="downloadMp3('sounds/fahhhhhhhhhhhhhhh.mp3', 'fahhhhhhhhhhhhhhh.mp3')">تحميل ⬇</button>
+      </div>
+
+      <div class="sound-item" data-initial-order="5">
+        <button class="img-btn orange" onclick="playMp3(this, 'sounds/ack.mp3')">
+          <img src="btn.png" alt="button">
+        </button>
+        <div class="sound-name">ack</div>
+        <div class="play-count"></div>
+        <button class="download-btn" onclick="downloadMp3('sounds/ack.mp3', 'ack.mp3')">تحميل ⬇</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "soundboard_usage_v1";
+    let currentAudio = null;
+    let currentCard = null;
+
+    function getUsageData() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+      } catch {
+        return {};
+      }
+    }
+
+    function saveUsageData(data) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      } catch {}
+    }
+
+    function updateCardsUIAndSort() {
+      const usage = getUsageData();
+      const grid = document.getElementById("soundGrid");
+      const items = Array.from(grid.querySelectorAll(".sound-item"));
+
+      items.forEach((item) => {
+        const name = item.querySelector(".sound-name").textContent.trim();
+        const count = usage[name] || 0;
+        const countEl = item.querySelector(".play-count");
+        countEl.textContent = count > 0 ? `تم التشغيل ${count} مرة` : "";
+      });
+
+      items.sort((a, b) => {
+        const nameA = a.querySelector(".sound-name").textContent.trim();
+        const nameB = b.querySelector(".sound-name").textContent.trim();
+        const countA = usage[nameA] || 0;
+        const countB = usage[nameB] || 0;
+
+        if (countB !== countA) {
+          return countB - countA;
+        }
+        return Number(a.dataset.initialOrder) - Number(b.dataset.initialOrder);
+      });
+
+      items.forEach((item) => grid.appendChild(item));
+    }
+
+    function recordPlay(card) {
+      if (!card) return;
+      const name = card.querySelector(".sound-name").textContent.trim();
+      const usage = getUsageData();
+      usage[name] = (usage[name] || 0) + 1;
+      saveUsageData(usage);
+      updateCardsUIAndSort();
+    }
+
+    function resetUsage() {
+      localStorage.removeItem(STORAGE_KEY);
+      updateCardsUIAndSort();
+    }
+
+    function clearPlayingState() {
+      if (currentCard) {
+        currentCard.classList.remove("playing");
+        currentCard = null;
+      }
+      document.getElementById("stopBtn").style.display = "none";
+    }
+
+    function stopCurrentSound() {
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio.currentTime = 0;
+        currentAudio = null;
+      }
+      clearPlayingState();
+    }
+
+    function playMp3(btnElement, path) {
+      stopCurrentSound();
+
+      const card = btnElement.closest(".sound-item");
+      recordPlay(card);
+
+      currentCard = card;
+      if (currentCard) {
+        currentCard.classList.add("playing");
+      }
+
+      currentAudio = new Audio(path);
+      document.getElementById("stopBtn").style.display = "inline-block";
+
+      currentAudio.onended = () => {
+        clearPlayingState();
+        currentAudio = null;
+      };
+
+      currentAudio.play();
+    }
+
+    function downloadMp3(path, fileName) {
+      fetch(path)
+        .then(res => res.blob())
+        .then(blob => {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = fileName;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          URL.revokeObjectURL(url);
+        })
+        .catch(() => {
+          window.open(path, "_blank");
+        });
+    }
+
+    function filterSounds() {
+      const input = document.getElementById("searchInput");
+      const query = input.value.toLowerCase().trim();
+      const clearBtn = document.getElementById("clearBtn");
+      const items = document.querySelectorAll(".sound-item");
+      let visibleCount = 0;
+
+      clearBtn.style.display = query.length > 0 ? "block" : "none";
+
+      items.forEach((item) => {
+        const name = item.querySelector(".sound-name").textContent.toLowerCase();
+        if (name.includes(query)) {
+          item.style.display = "flex";
+          visibleCount++;
+        } else {
+          item.style.display = "none";
+        }
+      });
+
+      document.getElementById("noResults").style.display =
+        visibleCount === 0 ? "block" : "none";
+
+      document.getElementById("countBadge").textContent =
+        visibleCount === 1 ? "صوت واحد" : `${visibleCount} أصوات`;
+    }
+
+    function clearSearch() {
+      const input = document.getElementById("searchInput");
+      input.value = "";
+      filterSounds();
+      input.focus();
+    }
+
+    updateCardsUIAndSort();
+  </script>
+
+</body>
+</html>
